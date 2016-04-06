@@ -1,48 +1,56 @@
-/* Requires:
-ScreenWidget.js
+/*
+ * Programmer: Jesse Chisholm | 11278684
+ * Program: JS Game (Homework 5)
+ * Class: CptS 483 - Web Dev
+ * File: Bullet.js
+ * 
+ * Dependencies: ScreenWidget.js
+ * 
+ * Description: Defines a Star class for use in the game.
  */
-function Star(context)
-{
+
+var Star = function(context) {
     ScreenWidget.call(this, context);
     var self = this;
     self.speed = 1;
     self.width = 2;
 
-    self.render = function ()
-    {
+    self.render = function() {
         self.context.fillStyle = self.color;
         self.context.beginPath();
-        self.context.arc(self.x, self.y, self.width, 0, Math.PI * 2, true);
+        self.context.arc(
+            self.x,         // Arc x location
+            self.y,         // Arc y location
+            self.width,     // Arc width
+            0,              // ??????
+            Math.PI * 2,    // Arc angle
+            true            // ??????
+        );
         self.context.fill();
     };
 
-    self.update = function ()
-    {
+    self.update = function() {
         self.y += self.speed;
         self.checkBoundary();
     };
 
-    self.checkBoundary = function()
-    {
-        if(self.y > maxY)
-        {
-            //reset location
+    self.checkBoundary = function() {
+        if (self.y > maxY) {
+            // Reset location.
             self.y = 0;
 
-            //change color for next go around
+            // Change color for next go around.
             self.changeColor();
 
-            //go somewhere else on the star field;
-            if(maxX != undefined)
-            {
+            // Go somewhere else on the star field.
+            if (maxX != undefined) {
                 self.x = Math.floor(Math.random() * maxX) + 1;
             }
         }
     };
 
-    //sets star to new random color
-    self.changeColor = function()
-    {
+    // Sets star to new random color.
+    self.changeColor = function() {
         var red = Math.floor(Math.random() * 255);
         var green = Math.floor(Math.random() * 255);
         var blue = Math.floor(Math.random() * 255);
@@ -52,16 +60,15 @@ function Star(context)
     self.changeColor();
 }
 
-Star.makeStar = function(context, width, speed)
-{
-    var someStar = new Star(context);
+Star.makeStar = function(context, width, speed) {
+    var newStar = new Star(context);
     var red = Math.floor(Math.random() * 255);
     var green = Math.floor(Math.random() * 255);
     var blue = Math.floor(Math.random() * 255);
-    someStar.color = "rgb(" + red + ", " + green + ", " + blue + ")";
-    someStar.speed = speed;
-    someStar.width = width;
-    someStar.x = Math.floor(Math.random() * maxX);
-    someStar.y = Math.floor(Math.random() * maxY);
-    return someStar;
+    newStar.color = "rgb(" + red + ", " + green + ", " + blue + ")";
+    newStar.speed = speed;
+    newStar.width = width;
+    newStar.x = Math.floor(Math.random() * maxX);
+    newStar.y = Math.floor(Math.random() * maxY);
+    return newStar;
 };
