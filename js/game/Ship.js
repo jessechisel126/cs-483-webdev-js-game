@@ -1,4 +1,4 @@
-/*globals ScreenWidget, ShipType*/
+/*globals ScreenWidget, ShipType, TimeDependent, console, Bullet, Speed, Direction, Color, TickInterval*/
 
 /*
  * Programmer: Jesse Chisholm | 11278684
@@ -22,6 +22,7 @@ function Ship(context, image, imageIndex, imageOffset, width, height) {
     self.height = height;
     self.bullets = [];
 
+    // All ships will use the same image at different offsets.
     self.render = function () {
         self.context.drawImage(
             self.image,                          // Source image
@@ -50,10 +51,31 @@ function PlayerShip(context, image, imageIndex, imageOffset, width, height) {
     };
 }
 
-function EnemyShip(context, image, imageIndex, imageOffset, width, height) {
+// POSSIBLY FIX: Enemy ships need access to the widgets to fire bullets.
+function EnemyShip(context, image, imageIndex, imageOffset, width, height, widgets) {
     'use strict';
     Ship.call(this, context, image, imageIndex, imageOffset, width, height);
     var self = this;
     self.shipType = ShipType.Enemy;
+    self.widgets = widgets;
+    
+    // Enemy ships fire a bullet every 100 ticks.
+    TimeDependent.call(this, TickInterval.Fast, function () {
+        var newBullet;
+        console.log("Bullet fired from enemy ship!");
+        newBullet = Bullet.makeBullet(
+            self.context,
+            self,
+            Speed.Medium,
+            Direction.Down,
+            Color.Red
+        );
+        self.widgets.push(newBullet);
+    });
+    
+    // Tick on every update.
+    self.update = function () {
+        self.tick();
+    };
 }
 

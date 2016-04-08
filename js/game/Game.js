@@ -1,4 +1,4 @@
-/*globals $, console, Speed, Direction, Bullet,
+/*globals $, console, Speed, Direction, Color, Bullet,
 PlayerShip, EnemyShip, Star, enemyShips, maxX, maxY*/
 
 /*
@@ -96,12 +96,13 @@ function Game(canvas, shipImageSrc) {
         // Generate enemy ships.
         for (i = 0; i < self.numEnemyShips; i += 1) {
             enemyShip = new EnemyShip(
-                self.context,   // Ship Context
+                self.context,   // Context
                 self.shipImage, // Ship Image
                 i + 1,          // Ship Image Index
                 66,             // Ship Image Offset
                 64,             // Ship Width
-                64              // Ship Height
+                64,             // Ship Height
+                self.widgets    // Global widgets
             );
             enemyShip.x = 100 * i;
             self.widgets.push(enemyShip);
@@ -146,7 +147,13 @@ function Game(canvas, shipImageSrc) {
     self.canvasMouseClicked = function (evt) {
         var newBullet;
         console.log("Bullet fired from player ship!");
-        newBullet = Bullet.makeBullet(self.context, self.playerShip, Speed.Fast, Direction.Up);
+        newBullet = Bullet.makeBullet(
+            self.context,
+            self.playerShip,
+            Speed.Fast,
+            Direction.Up,
+            Color.Cyan
+        );
         self.widgets.push(newBullet);
     };
 

@@ -15,10 +15,6 @@ function Bullet(context) {
     'use strict';
     ScreenWidget.call(this, context);
     var self = this;
-    self.width = 4;
-    self.height = 10;
-    self.color = "cyan";
-    self.direction = Direction.Up;
 
     self.render = function () {
         // Rectangle Bullet
@@ -38,13 +34,20 @@ function Bullet(context) {
     };
 }
 
-Bullet.makeBullet = function (context, ship, speed, direction) {
+Bullet.makeBullet = function (context, ship, speed, direction, color) {
     'use strict';
     var newBullet = new Bullet(context);
     newBullet.x = ship.x + ship.width / 2;
-    newBullet.y = ship.y;
+    if (direction === Direction.Down) {
+        newBullet.y = ship.y + ship.height;
+    } else if (direction === Direction.Up) {
+        newBullet.y = ship.y;
+    }
+    newBullet.width = 4;
+    newBullet.height = 10;
     newBullet.speed = speed;
     newBullet.direction = direction;
+    newBullet.color = color;
     ship.bullets.push(newBullet);
     return newBullet;
 };
