@@ -1,3 +1,5 @@
+/*globals ScreenWidget, Speed, Direction, maxX, maxY*/
+
 /*
  * Programmer: Jesse Chisholm | 11278684
  * Program: JS Game (Homework 5)
@@ -9,50 +11,40 @@
  * Description: Defines a bullet class for use in the game.
  */
 
-var Bullet = function(context) {
+function Bullet(context) {
+    'use strict';
     ScreenWidget.call(this, context);
     var self = this;
     self.width = 4;
     self.height = 10;
-    self.color = "rgb(255,255,255);";
+    self.color = "cyan";
     self.direction = Direction.Up;
 
-    self.render = function() {
-        // // Round Bullet
-        // self.context.fillStyle = self.color;
-        // self.context.beginPath();
-        // self.context.arc(
-        //     self.x,         // Arc x location
-        //     self.y,         // Arc y location
-        //     self.width,     // Arc width
-        //     0,              // ??????
-        //     Math.PI * 2,    // Arc angle
-        //     true            // ??????
-        // );
-        // self.context.fill();
-
+    self.render = function () {
         // Rectangle Bullet
         self.context.fillStyle = self.color;
         self.context.fillRect(self.x, self.y, self.width, self.height);
     };
 
-    self.update = function() {
+    self.update = function () {
         self.y += self.speed * self.direction;
         self.checkBoundary();
     };
 
-    self.checkBoundary = function() {
+    self.checkBoundary = function () {
         if (self.y > maxY) {
-            self.speed = 0;
+            self.speed = Speed.Stopped;
         }
     };
 }
 
-Bullet.makeBullet = function(context, ship, speed, direction) {
+Bullet.makeBullet = function (context, ship, speed, direction) {
+    'use strict';
     var newBullet = new Bullet(context);
     newBullet.x = ship.x + ship.width / 2;
     newBullet.y = ship.y;
     newBullet.speed = speed;
     newBullet.direction = direction;
+    ship.bullets.push(newBullet);
     return newBullet;
 };

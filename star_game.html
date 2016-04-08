@@ -5,17 +5,18 @@
         <meta charset="UTF-8" />
         <script type="text/javascript" src="js/jquery-2.2.1.min.js"></script>
 
+        <script type="text/javascript" src="js/game/Globals.js"></script>
         <script type="text/javascript" src="js/game/ScreenWidget.js"></script>
         <script type="text/javascript" src="js/game/Star.js"></script>
-        <script type="text/javascript" src="js/game/SpaceShip.js"></script>
-        <script type="text/javascript" src="js/game/StarGame.js"></script>
+        <script type="text/javascript" src="js/game/Ship.js"></script>
+        <script type="text/javascript" src="js/game/Game.js"></script>
         <script type="text/javascript" src="js/game/Bullet.js"></script>
     </head>
     <body id="body">
         <script>
             $(document).ready(function(){
-                var game = new StarGame(document.getElementById("canvas"),
-                    "images/ships.png"
+                var game = new Game(document.getElementById("canvas"),
+                    "images/new_ships.png"
                 );
                 game.begin();
             });
