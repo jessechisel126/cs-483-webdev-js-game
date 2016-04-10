@@ -1,4 +1,10 @@
-/*globals ScreenWidget, ShipType, TimeDependent, console, Bullet, Speed, Direction, Color, TickInterval*/
+/*globals
+console, alert,
+ShipType, Speed, Direction, Color, TickInterval, Allegiance,
+TimeDependent, RectangleCollider,
+ScreenWidget, Bullet,
+enemyShips, playerShip
+*/
 
 /*
  * Programmer: Jesse Chisholm | 11278684
@@ -11,7 +17,7 @@
  * Description: Defines ship classes for use in the game.
  */
 
-function Ship(context, image, imageIndex, imageOffset, width, height) {
+function Ship(context, image, imageIndex, imageOffset, width, height, hitbox) {
     'use strict';
     ScreenWidget.call(this, context);
     var self = this;
@@ -20,8 +26,11 @@ function Ship(context, image, imageIndex, imageOffset, width, height) {
     self.imageOffset = imageOffset;
     self.width = width;
     self.height = height;
-    self.bullets = [];
-
+    self.health = 3;
+    
+    // All ships are rectangular colliders.
+    RectangleCollider.call(this, 0.5);
+    
     // All ships will use the same image at different offsets.
     self.render = function () {
         self.context.drawImage(
@@ -42,7 +51,12 @@ function PlayerShip(context, image, imageIndex, imageOffset, width, height) {
     'use strict';
     Ship.call(this, context, image, imageIndex, imageOffset, width, height);
     var self = this;
-    self.shipType = ShipType.Friend;
+    self.allegiance = Allegiance.Player;
+    
+    self.update = function () {
+        var i;
+        self.checkCollisions();
+    };
     
     // Player ship responds to mouse movement.
     self.mouseMoved = function (evt) {
@@ -56,26 +70,28 @@ function EnemyShip(context, image, imageIndex, imageOffset, width, height, widge
     'use strict';
     Ship.call(this, context, image, imageIndex, imageOffset, width, height);
     var self = this;
-    self.shipType = ShipType.Enemy;
     self.widgets = widgets;
+    self.shotSpeed = TickInterval.Medium;
+    self.allegiance = Allegiance.Enemy;
     
-    // Enemy ships fire a bullet every 100 ticks.
-    TimeDependent.call(this, TickInterval.Fast, function () {
-        var newBullet;
-        console.log("Bullet fired from enemy ship!");
-        newBullet = Bullet.makeBullet(
-            self.context,
-            self,
-            Speed.Medium,
-            Direction.Down,
-            Color.Red
-        );
+    // Enemy ships fire a bullet periodically.
+    TimeDependent.call(this, self.shotSpeed, function () {
+        var newBullet = Bullet.makeBullet(self.context, self, Speed.Medium);
+        
+//        // Subscribe player ship to the new bullet for collision...
+//        playerShip.subscribeCollider(newBullet, function () {
+//            // ...the player's ship will lose one health...
+//            self.health -= 1;
+//        }.bind(playerShip), function () {
+//            // ...the bullet will do nothing.
+//        }.bind(newBullet));
+        
         self.widgets.push(newBullet);
     });
     
     // Tick on every update.
     self.update = function () {
         self.tick();
+        self.checkCollisions();
     };
 }
-

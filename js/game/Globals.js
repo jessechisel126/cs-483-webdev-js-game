@@ -1,3 +1,5 @@
+/*globals console*/
+
 /*
  * Programmer: Jesse Chisholm | 11278684
  * Program: JS Game (Homework 5)
@@ -43,16 +45,22 @@ var Direction = {
     Down: 1
 };
 
-// Friend or enemy ship
-var ShipType = {
-    Friend: 'friend',
+// Friend or enemy property
+var Allegiance = {
+    Player: 'player',
     Enemy: 'enemy'
 };
 
-// Mostly just because I'm infatuated with enums in JS now...
-var Color = {
-    Cyan: 'cyan',
-    Red: 'red'
+// Mostly just because I'm infatuated with infusing type into JS now...
+var BulletColor = {
+    Player: {
+        innerColor: 'blue',
+        outerColor: 'cyan'
+    },
+    Enemy: {
+        innerColor: 'red',
+        outerColor: 'orange'
+    }
 };
 
 // This love is getting out of control...
@@ -68,21 +76,9 @@ var TickInterval = {
     Instant:       1
 };
 
-// Time dependent interface/class
-// Adds a tick() to the caller.
-// Once tick() has been called tickInterval times,
-// action() is performed.
-function TimeDependent(tickInterval, action) {
+
+// Given two ranges, checks if they overlap.
+function rangesOverlap(minA, maxA, minB, maxB) {
     'use strict';
-    var self = this;
-    self.tickCount = 0;
-    
-    self.tick = function () {
-        self.tickCount += 1;
-        self.tickCount %= tickInterval;
-        
-        if (self.tickCount === 0) {
-            action();
-        }
-    };
+    return minA <= maxB && maxA >= minB;
 }
