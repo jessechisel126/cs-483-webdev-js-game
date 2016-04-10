@@ -1,5 +1,9 @@
-/*globals $, console, Speed, Direction, Color, Bullet,
-PlayerShip, EnemyShip, Star, enemyShips, maxX, maxY*/
+/*globals
+$, console,
+Speed, Direction, Color,
+Bullet, PlayerShip, EnemyShip, Star,
+playerShip, enemyShips, maxX, maxY
+*/
 
 /*
  * Programmer: Jesse Chisholm | 11278684
