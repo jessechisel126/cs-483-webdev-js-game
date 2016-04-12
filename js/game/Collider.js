@@ -27,20 +27,39 @@ function RectangleCollider(ratio) {
         console.log("ERROR: cannot give object collider; height is undefined!");
     }
     
-    // Two way collider subscription.
-    // other = other collider
-    // ourAction = action we should take upon collision
-    // theirAction = action other should take upon collision
-    self.subscribeCollider = function (other, ourAction, theirAction) {
+    // One way collider subscription.
+    // NOTE: Must subscribe both ways for collision to take place.
+    // collider = other collider
+    // action = action we should take upon collision
+    self.subscribeCollider = function (collider, action) {
         
-        // Check if other is a collider
-        if (!other instanceof RectangleCollider) {
+        // Check if collider is a collider
+        if (!collider instanceof RectangleCollider) {
             console.error("ERROR: Subscribing collider with a non-collider.");
             return;
         }
         
-        self.colliders.push({colliding: false, collider: other, action: ourAction});
-        other.colliders.push({colliding: false, collider: self, action: theirAction});
+        self.colliders.push({colliding: false, collider: collider, action: action});
+    };
+    
+    // One way collider unsubscription.
+    // NOTE: Must unsubscribe both ways for collision to stop taking place.
+    // other = collider to unsubscribe.
+    self.unsubscribeCollider = function (other) {
+        var i;
+        
+        // Check if other is a collider
+        if (!other instanceof RectangleCollider) {
+            console.error("ERROR: Unsubscribing non-collider from collider.");
+            return;
+        }
+        
+        for (i = 0; i < self.colliders.length; i += 1) {
+            if (self.colliders[i].collider.id === other.id) {
+                self.colliders.splice(i, 1);
+                return;
+            }
+        }
     };
     
     // Updates values for th ehitbox based on position.
@@ -95,20 +114,24 @@ function RectangleCollider(ratio) {
         self.updateHitbox();
         
         
-        var i,          // Loop variable
-            collider,   // Other object we're potentially colliding with
-            colliding,  // Whether we are already colliding with an object in question
-            action,     // Action to take upon colliding with an object in question
-            xOverlap,   // Whether we are overlapping in the x dimension with an object in question
-            yOverlap,   // Whether we are overlapping in the y dimension with an object in question
-            collided;   // Whether we've now collided with an object in question
+        var i,              // Loop variable
+            collider,       // Other object we're potentially colliding with
+            colliding,      // Whether we are already colliding with an object in question
+            action,         // Action to take upon colliding with an object in question
+            xOverlap,       // Whether we are overlapping in the x dimension with an object in question
+            yOverlap,       // Whether we are overlapping in the y dimension with an object in question
+            collided,       // Whether we've now collided with an object in question
+            colliderName,   // Name of the collider
+            // Our name
+            selfName = self.constructor.name;
         
         // Loop through colliders...
         for (i = 0; i < self.colliders.length; i += 1) {
             
-            collider  = self.colliders[i].collider;
-            colliding = self.colliders[i].colliding;
-            action    = self.colliders[i].action;
+            collider     = self.colliders[i].collider;
+            colliding    = self.colliders[i].colliding;
+            action       = self.colliders[i].action;
+            colliderName = collider.constructor.name;
             
             // Check if other object is in fact a collider
             if (!collider instanceof RectangleCollider) {
@@ -126,11 +149,11 @@ function RectangleCollider(ratio) {
             
             // If objects have started colliding, then call our action.
             if (!colliding && collided) {
-                console.log("Object started colliding!");
-                action(self);
+                console.log(selfName + " started colliding with " + colliderName);
                 self.colliders[i].colliding = true;
+                action(self);
             } else if (colliding && !collided) {
-                console.log("Object stopped colliding!");
+                console.log(selfName + " stopped colliding with " + colliderName);
                 self.colliders[i].colliding = false;
             }
         }

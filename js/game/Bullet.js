@@ -2,7 +2,7 @@
 ScreenWidget,
 RectangleCollider,
 Speed, Direction, Allegiance, BulletColor,
-maxX, maxY
+maxX, maxY, minY, deleteWidgetWithID
 */
 
 /*
@@ -40,31 +40,36 @@ function Bullet(context) {
     };
 
     self.checkBoundary = function () {
-        if (self.y > maxY) {
-            self.speed = Speed.Stopped;
+        if (self.y > maxY || self.y < minY) {
+            deleteWidgetWithID(self.id);
         }
     };
 }
 
-Bullet.makeBullet = function (context, ship, speed) {
+function EnemyBullet(context, enemyShip, speed) {
     'use strict';
-    var newBullet = new Bullet(context);
+    Bullet.call(this, context);
+    var self = this;
     
-    if (ship.allegiance === Allegiance.Enemy) {
-        newBullet.direction = Direction.Down;
-        newBullet.color = BulletColor.Enemy;
-    } else if (ship.allegiance === Allegiance.Player) {
-        newBullet.direction = Direction.Up;
-        newBullet.color = BulletColor.Player;
-    }
+    self.direction = Direction.Down;
+    self.color = BulletColor.Enemy;
     
-    newBullet.x = ship.x + ship.width / 2;
-    if (newBullet.direction === Direction.Down) {
-        newBullet.y = ship.y + ship.height;
-    } else if (newBullet.direction === Direction.Up) {
-        newBullet.y = ship.y;
-    }
+    self.x = enemyShip.x + enemyShip.width / 2;
+    self.y = enemyShip.y + enemyShip.height;
     
-    newBullet.speed = speed;
-    return newBullet;
-};
+    self.speed = speed;
+}
+
+function PlayerBullet(context, playerShip, speed) {
+    'use strict';
+    Bullet.call(this, context);
+    var self = this;
+    
+    self.direction = Direction.Up;
+    self.color = BulletColor.Player;
+
+    self.x = playerShip.x + playerShip.width / 2;
+    self.y = playerShip.y;
+    
+    self.speed = speed;
+}

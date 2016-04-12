@@ -1,9 +1,9 @@
 /*globals
-console, alert,
+console, alert, deleteWidgetWithID,
 ShipType, Speed, Direction, Color, TickInterval, Allegiance,
 TimeDependent, RectangleCollider,
-ScreenWidget, Bullet,
-enemyShips, playerShip
+ScreenWidget, EnemyBullet, PlayerBullet,
+widgets, enemyShips, playerShip
 */
 
 /*
@@ -26,10 +26,9 @@ function Ship(context, image, imageIndex, imageOffset, width, height, hitbox) {
     self.imageOffset = imageOffset;
     self.width = width;
     self.height = height;
-    self.health = 3;
     
     // All ships are rectangular colliders.
-    RectangleCollider.call(this, 0.5);
+    RectangleCollider.call(this, 0.75);
     
     // All ships will use the same image at different offsets.
     self.render = function () {
@@ -52,7 +51,8 @@ function PlayerShip(context, image, imageIndex, imageOffset, width, height) {
     Ship.call(this, context, image, imageIndex, imageOffset, width, height);
     var self = this;
     self.allegiance = Allegiance.Player;
-    
+    self.health = 3;
+
     self.update = function () {
         var i;
         self.checkCollisions();
@@ -65,28 +65,44 @@ function PlayerShip(context, image, imageIndex, imageOffset, width, height) {
     };
 }
 
-// POSSIBLY FIX: Enemy ships need access to the widgets to fire bullets.
-function EnemyShip(context, image, imageIndex, imageOffset, width, height, widgets) {
+function EnemyShip(context, image, imageIndex, imageOffset, width, height) {
     'use strict';
     Ship.call(this, context, image, imageIndex, imageOffset, width, height);
     var self = this;
-    self.widgets = widgets;
-    self.shotSpeed = TickInterval.Medium;
+    self.shotSpeed = TickInterval.Slow;
     self.allegiance = Allegiance.Enemy;
-    
+    self.health = 1;
+
     // Enemy ships fire a bullet periodically.
     TimeDependent.call(this, self.shotSpeed, function () {
-        var newBullet = Bullet.makeBullet(self.context, self, Speed.Medium);
         
-//        // Subscribe player ship to the new bullet for collision...
-//        playerShip.subscribeCollider(newBullet, function () {
-//            // ...the player's ship will lose one health...
-//            self.health -= 1;
-//        }.bind(playerShip), function () {
-//            // ...the bullet will do nothing.
-//        }.bind(newBullet));
+        var enemyBullet = new EnemyBullet(self.context, self, Speed.Slow);
         
-        self.widgets.push(newBullet);
+        // Subscribe player ship to collisions with the enemy bullet.
+        playerShip.subscribeCollider(
+            enemyBullet,
+            // The player's ship will lose one health.
+            function () {
+                console.log("Player hit by enemy bullet: losing one health!");
+                var self = this;
+                self.health -= 1;
+                self.unsubscribeCollider(enemyBullet);
+            }.bind(playerShip)
+        );
+
+        // Subscribe enemy bullet to collisions with the player ship.
+        enemyBullet.subscribeCollider(
+            playerShip,
+            // The bullet will kill itself.
+            function () {
+                console.log("Enemy bullet hit player: killing self!");
+                var self = this;
+                self.unsubscribeCollider(playerShip);
+                deleteWidgetWithID(self.id);
+            }.bind(enemyBullet)
+        );
+        
+        widgets.push(enemyBullet);
     });
     
     // Tick on every update.

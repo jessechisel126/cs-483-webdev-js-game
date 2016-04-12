@@ -1,3 +1,5 @@
+/*globals numObjects*/
+
 /*
  * Programmer: Jesse Chisholm | 11278684
  * Program: JS Game (Homework 5)
@@ -13,6 +15,8 @@ function ScreenWidget(context) {
     self.context = context;
     self.x = 0;
     self.y = 0;
+    self.id = numObjects;
+    numObjects += 1;
     self.render = function () {};
     self.update = function () {};
 }

@@ -1,8 +1,8 @@
 /*globals
-$, console,
+$, console, deleteWidgetWithID,
 Speed, Direction, Color,
-Bullet, PlayerShip, EnemyShip, Star,
-playerShip, enemyShips, maxX, maxY
+PlayerBullet, PlayerShip, EnemyShip, Star,
+widgets, maxX, maxY, playerShip, enemyShips
 */
 
 /*
@@ -24,7 +24,6 @@ function Game(canvas, shipImageSrc) {
     var self = this;
     self.canvas = canvas;
     self.context = canvas.getContext("2d");
-    self.widgets = [];
     self.numLargeStars = 10;
     self.numMediumStars = 20;
     self.numSmallStars = 100;
@@ -33,12 +32,13 @@ function Game(canvas, shipImageSrc) {
     self.shipImage.src = shipImageSrc;
     self.numEnemyShips = 5;
     
-    // NOTE: Linting shows clientWidth and clientHeight as readonly, 
-    // don't know why that would be a problem if we aren't assigning to them.
+    // NOTE: Linting shows widgets, maxX and maxY as readonly, though they aren't.
+    widgets = [];
     maxX = canvas.clientWidth;
     maxY = canvas.clientHeight;
 
     // Set up the player ship.
+    // NOTE: Linting shows playerShip as readonly, though it isn't.
     playerShip = new PlayerShip(
         self.context,   // Ship Context
         self.shipImage, // Ship Image
@@ -64,30 +64,25 @@ function Game(canvas, shipImageSrc) {
             newStar,
             howFast,
             enemyShip,
-            doNothing = function () {
+            killSelf = function (other) {
                 var self = this;
-                console.log("Collision: doing nothing to self");
-                console.log(self);
-            },
-            loseAllHealth = function () {
-                var self = this;
-                console.log("Collision: killing self");
-                self.health = 0;
-                console.log(self);
+                console.log(self.constructor.name + " collision: killing self");
+                self.unsubscribeCollider(other);
+                deleteWidgetWithID(self.id);
             };
 //        
 //        // Generate large stars.
 //        for (i = 0; i < self.numLargeStars; i += 1) {
 //            speed = (Math.floor(Math.random() * 3) + 1);
 //            newStar = Star.makeStar(self.context, 5, speed);
-//            self.widgets.push(newStar);
+//            widgets.push(newStar);
 //        }
 //
 //        // Generate medium stars.
 //        for (i = 0; i < self.numMediumStars; i += 1) {
 //            speed = (Math.floor(Math.random() * 3) + 1);
 //            newStar = Star.makeStar(self.context, 3, speed);
-//            self.widgets.push(newStar);
+//            widgets.push(newStar);
 //        }
 //
 //        // Generate small stars.
@@ -104,14 +99,14 @@ function Game(canvas, shipImageSrc) {
 //            }
 //
 //            newStar = Star.makeStar(self.context, 2, speed);
-//            self.widgets.push(newStar);
+//            widgets.push(newStar);
 //        }
 //
 //        // Generate tiny stars.
 //        for (i = 0; i < self.numTinyStars; i += 1) {
 //            speed = (Math.floor(Math.random() * 3) + 1);
 //            newStar = Star.makeStar(self.context, 1, speed);
-//            self.widgets.push(newStar);
+//            widgets.push(newStar);
 //        }
 
         // Generate enemy ships.
@@ -123,26 +118,30 @@ function Game(canvas, shipImageSrc) {
                 66,             // Ship Image Offset
                 64,             // Ship Width
                 64,             // Ship Height
-                self.widgets    // Global widgets
+                widgets    // Global widgets
             );
             enemyShip.x = 100 * i;
-            self.widgets.push(enemyShip);
+            widgets.push(enemyShip);
             enemyShips.push(enemyShip);
         }
         
         // Generate player ship.
-        self.widgets.push(playerShip);
+        widgets.push(playerShip);
         
         // Subscribe collisions for all enemy ships with the player ship.
         for (i = 0; i < enemyShips.length; i += 1) {
             enemyShip = enemyShips[i];
             
-            // We lose all health upon collision with enemy
-            // Nothing happens to the enemy when we collide with them
+            // Kill the player
             playerShip.subscribeCollider(
-                enemyShips[i],
-                loseAllHealth.bind(playerShip),
-                doNothing.bind(enemyShip)
+                enemyShip,
+                killSelf.bind(playerShip, enemyShip)
+            );
+            
+            // Kill the enemy
+            enemyShip.subscribeCollider(
+                playerShip,
+                killSelf.bind(enemyShip, playerShip)
             );
                                               
         }
@@ -162,9 +161,9 @@ function Game(canvas, shipImageSrc) {
         self.context.fillRect(0, 0, maxX, maxY);
 
         // Render all widgets.
-        for (i = 0; i < self.widgets.length; i += 1) {
-            self.widgets[i].render();
-            self.widgets[i].update();
+        for (i = 0; i < widgets.length; i += 1) {
+            widgets[i].render();
+            widgets[i].update();
         }
 
         // Animate.
@@ -181,34 +180,39 @@ function Game(canvas, shipImageSrc) {
 
     self.canvasMouseClicked = function (evt) {
         var i,
-            newBullet,
+            playerBullet,
             enemyShip,
-            doNothing = function () {
+            killSelf = function (other) {
                 var self = this;
-                console.log("Our bullet hit an enemy ship");
-                console.log(self);
+                console.log(self.constructor.name + " collision: killing self");
+                self.unsubscribeCollider(other);
+                deleteWidgetWithID(self.id);
             };
         
         console.log("Bullet fired from player ship!");
-        newBullet = Bullet.makeBullet(
+        playerBullet = new PlayerBullet(
             self.context,
             playerShip,
             Speed.Fast
         );
         
-        for (i = 0; i < self.numEnemyShips; i += 1) {
+        for (i = 0; i < enemyShips.length; i += 1) {
             
             enemyShip = enemyShips[i];
             
-            // Subscribe enemy ship to collisions with 
+            // Subscribe enemy ship to collisions with bullet, both killing self when colliding 
             enemyShip.subscribeCollider(
-                newBullet,
-                doNothing.bind(enemyShip),
-                doNothing.bind(newBullet)
+                playerBullet,
+                killSelf.bind(enemyShip, playerBullet)
+            );
+            
+            playerBullet.subscribeCollider(
+                enemyShip,
+                killSelf.bind(playerBullet, enemyShip)
             );
         }
         
-        self.widgets.push(newBullet);
+        widgets.push(playerBullet);
     };
 
     // Set up event listeners.
