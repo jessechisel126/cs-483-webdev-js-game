@@ -1,6 +1,6 @@
 /*globals
 ScreenWidget,
-RectangleCollider,
+RectangularCollider,
 Speed, Direction, Allegiance, BulletColor,
 maxX, maxY, minY, deleteWidgetWithID
 */
@@ -13,7 +13,7 @@ maxX, maxY, minY, deleteWidgetWithID
  * 
  * Dependencies: ScreenWidget.js
  * 
- * Description: Defines a bullet class for use in the game.
+ * Description: Defines bullet classes for use in the game.
  */
 
 function Bullet(context) {
@@ -23,7 +23,7 @@ function Bullet(context) {
     self.width = 4;
     self.height = 12;
     
-    RectangleCollider.call(this, 1);
+    RectangularCollider.call(this, 1);
 
     self.render = function () {
         // Rectangle Bullet

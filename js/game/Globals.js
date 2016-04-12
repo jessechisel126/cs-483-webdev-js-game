@@ -18,12 +18,12 @@ var minY = 0;
 var maxX = 0;
 var maxY = 0;
 var numObjects = 0;
+var shipsToSpawn = 10;
 var widgets = [];
 
 // Ship globals
 var playerShip;
 var enemyShips = [];
-
 
 //
 // Enums
@@ -113,14 +113,11 @@ function deleteWidgetWithID(id) {
         }
     }
     
+    // Delete from globals
     for (i = 0; i < enemyShips.length; i += 1) {
         if (enemyShips[i].id === id) {
             enemyShips.splice(i, 1);
             break;
         }
     }
-    
-//    if (playerShip.id === id) {
-//        playerShip = null;
-//    }
 }

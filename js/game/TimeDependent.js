@@ -1,5 +1,14 @@
 /*globals console*/
 
+/*
+ * Programmer: Jesse Chisholm | 11278684
+ * Program: JS Game (Homework 5)
+ * Class: CptS 483 - Web Dev
+ * File: ScreenWidget.js
+ * 
+ * Description: Defines a time dependent class for use in the game.
+ */
+
 // Time dependent interface/class.
 // Adds a tick() to the caller.
 // Once tick() has been called tickInterval times,

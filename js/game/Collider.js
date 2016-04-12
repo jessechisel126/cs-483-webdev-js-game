@@ -1,15 +1,21 @@
 /*globals console*/
 /*jslint continue:true*/
 
-// Rectangle collider interface/class.
-// Given a ratio of the caller's rectangular size,
-// adds checkCollision() to parent that checks if 
-// a given rectangle collides with a hitbox that is
-// hitboxRatio times the size of the caller, centered on the caller.
-// Once collision starts, action() is called.
+/*
+ * Programmer: Jesse Chisholm | 11278684
+ * Program: JS Game (Homework 5)
+ * Class: CptS 483 - Web Dev
+ * File: Collider.js
+ * 
+ * Description: Defines a RectangleCollider class for use in the game.
+ */
+
+// Rectangle collider class.
+// Makes the caller a rectanglular collider.
+// Uses subscription system similar to events for handling collisions.
 // Expects the caller to have properties x, y, width, and height.
 // Typical use would be to call checkCollision() in an update function.
-function RectangleCollider(ratio) {
+function RectangularCollider(ratio) {
     'use strict';
     var self = this;
     self.hitbox = {};
@@ -34,7 +40,7 @@ function RectangleCollider(ratio) {
     self.subscribeCollider = function (collider, action) {
         
         // Check if collider is a collider
-        if (!collider instanceof RectangleCollider) {
+        if (!collider instanceof RectangularCollider) {
             console.error("ERROR: Subscribing collider with a non-collider.");
             return;
         }
@@ -49,7 +55,7 @@ function RectangleCollider(ratio) {
         var i;
         
         // Check if other is a collider
-        if (!other instanceof RectangleCollider) {
+        if (!other instanceof RectangularCollider) {
             console.error("ERROR: Unsubscribing non-collider from collider.");
             return;
         }
@@ -62,7 +68,7 @@ function RectangleCollider(ratio) {
         }
     };
     
-    // Updates values for th ehitbox based on position.
+    // Updates values for the hitbox based on position.
     self.updateHitbox = function () {
         
         /* Hitbox Diagram
@@ -71,7 +77,7 @@ function RectangleCollider(ratio) {
                                   caller
                                   width
                                   = 24
-                         |~~~~~~~~~~~~~~~~~~~~~~|
+                         |----------------------|
 
                                 (caller)                        
                     -    +----------------------+
@@ -113,7 +119,6 @@ function RectangleCollider(ratio) {
         // Update our hitbox
         self.updateHitbox();
         
-        
         var i,              // Loop variable
             collider,       // Other object we're potentially colliding with
             colliding,      // Whether we are already colliding with an object in question
@@ -134,7 +139,7 @@ function RectangleCollider(ratio) {
             colliderName = collider.constructor.name;
             
             // Check if other object is in fact a collider
-            if (!collider instanceof RectangleCollider) {
+            if (!collider instanceof RectangularCollider) {
                 console.error("ERROR: Subscribing collider with a non-collider.");
                 continue;
             }

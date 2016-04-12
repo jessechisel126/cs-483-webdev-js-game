@@ -1,4 +1,4 @@
-/*globals numObjects*/
+/*globals numObjects:true*/
 
 /*
  * Programmer: Jesse Chisholm | 11278684
